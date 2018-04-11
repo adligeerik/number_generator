@@ -22,5 +22,5 @@ def plotdigit(digitnr):
 
 
 a=loadmnist()
-
+print(a) 
 
