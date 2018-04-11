@@ -18,8 +18,9 @@ def loadmnist():
 
 def plotdigit(digitnr):
     """ Plots 
-
+    """
 
 
 a=loadmnist()
+
 
