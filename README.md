@@ -1,3 +1,3 @@
-# number_generator
+# Number Generator
 
-testing!
+Number generator using GAN 
