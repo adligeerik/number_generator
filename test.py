@@ -166,7 +166,6 @@ for i in range(200):
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
     dis=settrainable(True,dis)
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
-<<<<<<< HEAD
     
     loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
     while(float(loss)>0.6):
@@ -176,12 +175,6 @@ for i in range(200):
         loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
         print(loss)
     
-=======
-    dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
-    dis.fit(Xfalse,d,batch_size=50,verbose=2,epochs=1)
-    print("TJUVEN")
-
->>>>>>> 02560b2beeb22fe117af2e3e1a5917e32cd27ddc
     dis=settrainable(False,dis)
     adv=Sequential()
     adv.add(gen)
@@ -204,17 +197,9 @@ e=gen.predict(noise)
 def plotdigit(digitnr):
     """ Plots
     """
-<<<<<<< HEAD
     
 #X,_,_,_=loadmnist()
 #X=X.reshape(X.shape[0],28,28,1)
 #d=np.reshape(a[1,:],(28,28,1))
 
 
-=======
-    return
-
-
-a=loadmnist()
-print(a)
->>>>>>> 02560b2beeb22fe117af2e3e1a5917e32cd27ddc
