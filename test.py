@@ -1,6 +1,8 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
+import matplotlib as mpl
+mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 from keras import backend as K
 from keras.models import Sequential
@@ -25,7 +27,7 @@ def loadmnist():
     y_test  = mnist.test.labels
     X_train=X_train.reshape(X_train.shape[0],28,28,1)
     X_test =X_test.reshape(X_test.shape[0],28,28,1)
-    
+
     return X_train, X_test, y_train, y_test
 
 def generatenoise(batch_size):
@@ -58,7 +60,7 @@ def creategenerator():
     model.add(Dense(500,activation='relu'))
     #model.add(Dropout(0.25))
     model.add(Dense(784))
-    
+
     model.add(Reshape([28,28,1]))
    # model.compile(loss='binary_crossentropy', optimizer='adam')
     return model
@@ -82,7 +84,7 @@ def creatediscriminator():
     model.add(Dropout(0.25))
     model.add(Flatten())
     model.add(Dense(256,activation='relu'))
-    model.add(Dense(2,activation='softmax'))    
+    model.add(Dense(2,activation='softmax'))
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     #model.summary()
     return model
@@ -106,7 +108,7 @@ def train(epochs=10,batch_size=128):
     gen=creategenerator()
     noise=generatenoise(10000)
     noise_samp=gen.predict(noise)
-    
+
 
 
     for i in range(1):
@@ -118,14 +120,14 @@ def train(epochs=10,batch_size=128):
         #print(a1)
         dis.fit(a[0:10000],np.ones(10000),batch_size=100,verbose=1)
         dis.fit(noise_samp,np.zeros(10000),batch_size=100,verbose=1)
-    
 
 
 
 
 
 
-    
+
+
     #mod.fit(a,b,batch_size=100,epochs=1,verbose=2)
     return dis
 
@@ -158,11 +160,11 @@ for i in range(200):
     Xtrue=a[indx]
     Xfalse=gen.predict(generatenoise(50))
 
-    
+
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
     dis=settrainable(True,dis)
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
-    
+
     loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
     while(float(loss)>0.75 or start==True):
         print('DISKRIMINATOR')
@@ -171,7 +173,7 @@ for i in range(200):
         loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
         print(loss)
         start=False
-    
+
     dis=settrainable(False,dis)
     adv=Sequential()
     adv.add(gen)
@@ -192,11 +194,9 @@ e=gen.predict(noise)
 
 
 def plotdigit(digitnr):
-    """ Plots 
+    """ Plots
     """
-    
+
 #X,_,_,_=loadmnist()
 #X=X.reshape(X.shape[0],28,28,1)
 #d=np.reshape(a[1,:],(28,28,1))
-
-
