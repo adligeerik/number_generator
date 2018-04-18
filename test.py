@@ -182,13 +182,8 @@ def plotdigit(digitnr):
     return
 
 
-<<<<<<< HEAD
 #X,_,_,_=loadmnist()
 #X=X.reshape(X.shape[0],28,28,1)
 #d=np.reshape(a[1,:],(28,28,1))
 
-=======
-a=loadmnist()
-print(a) 
->>>>>>> c065b50ccf895195982d9d6d61c05478ddb92c25
 
