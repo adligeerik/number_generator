@@ -133,6 +133,7 @@ def train(epochs=10,batch_size=128):
 
 
 a,b,c,d=loadmnist()
+a=a[0:10000]
 dis=creatediscriminator()
 gen=creategenerator()
 adv=Sequential()
@@ -152,25 +153,33 @@ images=gen.predict(generatenoise(1))
 loss=10
 loss1=10
 start=True
+start1=True
 for i in range(200):
-    print(i)
-    indx=np.random.randint(0,50000,50)
+    indx=np.random.randint(0,10000,50)
     Xtrue=a[indx]
     Xfalse=gen.predict(generatenoise(50))
+    print(i)
+    if (i<5):
+        indx=np.random.randint(0,10000,50)
+        Xtrue=a[indx]
+        Xfalse=gen.predict(generatenoise(50))
+        dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
+        dis.fit(Xfalse,d,batch_size=50,verbose=0,epochs=1)
+    
+
 
     
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
     dis=settrainable(True,dis)
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
     
+
+    print('DISKRIMINATOR')
+    dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
+    dis.fit(Xfalse,d,batch_size=50,verbose=0,epochs=1)
     loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
-    while(float(loss)>0.75 or start==True):
-        print('DISKRIMINATOR')
-        dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
-        dis.fit(Xfalse,d,batch_size=50,verbose=0,epochs=2)
-        loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
-        print(loss)
-        start=False
+    print(loss,acc)
+    print("\n")
     
     dis=settrainable(False,dis)
     adv=Sequential()
@@ -178,11 +187,11 @@ for i in range(200):
     adv.add(dis)
     adv.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
-    while(float(loss1)>0.75):
-        print("GENERATOR")
-        adv.fit(generatenoise(100),c1,batch_size=100,verbose=0,epochs=1)
-        loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
-        print(loss1)
+    print("GENERATOR")
+    adv.fit(generatenoise(100),c1,batch_size=100,verbose=0,epochs=1)
+    
+    print(loss1,acc1)
+    print("\n")
     #adv.fit(generatenoise(50),c,batch_size=50,verbose=2,epochs=1)
     images=np.vstack((images,gen.predict(generatenoise(1))))
 
