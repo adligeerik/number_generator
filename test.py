@@ -153,7 +153,7 @@ loss=10
 loss1=10
 start=True
 for i in range(200):
-    print(i)
+    #print(i)
     indx=np.random.randint(0,50000,50)
     Xtrue=a[indx]
     Xfalse=gen.predict(generatenoise(50))
@@ -165,11 +165,11 @@ for i in range(200):
     
     loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
     while(float(loss)>0.75 or start==True):
-        print('DISKRIMINATOR')
+        #print('DISKRIMINATOR')
         dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
         dis.fit(Xfalse,d,batch_size=50,verbose=0,epochs=2)
         loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
-        print(loss)
+        #print(loss)
         start=False
     
     dis=settrainable(False,dis)
@@ -179,12 +179,14 @@ for i in range(200):
     adv.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
     while(float(loss1)>0.75):
-        print("GENERATOR")
+        #print("GENERATOR")
         adv.fit(generatenoise(100),c1,batch_size=100,verbose=0,epochs=1)
         loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
-        print(loss1)
+        #print(loss1)
     #adv.fit(generatenoise(50),c,batch_size=50,verbose=2,epochs=1)
     images=np.vstack((images,gen.predict(generatenoise(1))))
+
+    print('DISKRIMINATOR: {0}, GENERATOR: {1}'.format(loss,loss1),end='\r' )
 
 e=gen.predict(noise)
 
