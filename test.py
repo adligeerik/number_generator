@@ -149,6 +149,8 @@ c=np.hstack((np.ones([50,1]),np.zeros([50,1])))
 c1=np.hstack((np.ones([100,1]),np.zeros([100,1])))
 d=np.hstack((np.zeros([50,1]),np.ones([50,1])))
 images=gen.predict(generatenoise(1))
+loss=10
+loss1=10
 for i in range(200):
     print(i)
     indx=np.random.randint(0,50000,50)
@@ -159,16 +161,27 @@ for i in range(200):
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
     dis=settrainable(True,dis)
     #weight=dis.layers[0].get_weights()[0][0][0][0][0]
-    dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
-    dis.fit(Xfalse,d,batch_size=50,verbose=2,epochs=1)
-    print("TJUVEN")
+    
+    loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
+    while(float(loss)>0.6):
+        print('DISKRIMINATOR')
+        dis.fit(Xtrue,c,batch_size=50,verbose=0,epochs=1)
+        dis.fit(Xfalse,d,batch_size=50,verbose=0,epochs=2)
+        loss,acc=dis.evaluate(Xfalse,d,batch_size=50,verbose=0)
+        print(loss)
     
     dis=settrainable(False,dis)
     adv=Sequential()
     adv.add(gen)
     adv.add(dis)
     adv.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
-    adv.fit(generatenoise(100),c1,batch_size=100,verbose=2,epochs=1)
+    loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
+    while(float(loss1)>0.6):
+        print("GENERATOR")
+        adv.fit(generatenoise(100),c1,batch_size=100,verbose=0,epochs=1)
+        loss1,acc1=adv.evaluate(generatenoise(100),c1,batch_size=100,verbose=0)
+        print(loss1)
+    #adv.fit(generatenoise(50),c,batch_size=50,verbose=2,epochs=1)
     images=np.vstack((images,gen.predict(generatenoise(1))))
 
 e=gen.predict(noise)
@@ -179,16 +192,9 @@ e=gen.predict(noise)
 def plotdigit(digitnr):
     """ Plots 
     """
-    return
-
-
-<<<<<<< HEAD
+    
 #X,_,_,_=loadmnist()
 #X=X.reshape(X.shape[0],28,28,1)
 #d=np.reshape(a[1,:],(28,28,1))
 
-=======
-a=loadmnist()
-print(a) 
->>>>>>> c065b50ccf895195982d9d6d61c05478ddb92c25
 
