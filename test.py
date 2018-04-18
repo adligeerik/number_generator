@@ -10,6 +10,8 @@ from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
 from keras.layers import Convolution2D, MaxPooling2D,Conv2D
 from keras.utils import np_utils
 
+np.random.seed(42)
+
 def loadmnist():
     """
     Loads mnist images and one hot representation labels
