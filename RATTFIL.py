@@ -1,3 +1,4 @@
+import os
 import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
@@ -9,6 +10,10 @@ from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
 from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose
 from keras.utils import np_utils
 from keras.layers.advanced_activations import LeakyReLU
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 
 np.random.seed(42)
 
@@ -33,10 +38,10 @@ class Traindata:
     
     def combineimages(self):
         # Make the combined image vector equal part real and fake
-        trainsize = np.abs(self.fake_lables.shape[0]-self.real_lables.shape[0])
+        trainsize = min(self.fake_lables.shape[0],self.real_lables.shape[0])
         # Combine real and fake images
         fromindex = np.random.randint(self.real_lables.shape[0]-trainsize,size=1)[0]
-        self.images = np.vstack((self.real_images[fromindex:trainsize],self.fake_images[:trainsize]))
+        self.images = np.vstack((self.real_images[fromindex:fromindex+trainsize],self.fake_images[:trainsize]))
 
     def shuffledata(self):
         # Creat random vector for shuffeling
@@ -163,3 +168,4 @@ disc=creatediscriminator()
 fake=gen.predict(noise)
 fake2=disc.predict(fake)
 print(fake2.shape)
+
