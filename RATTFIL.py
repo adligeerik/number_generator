@@ -17,27 +17,35 @@ class Traindata:
         self.real_images = real_images
         self.fake_images = fake_images
 
-        ones = np.ones([real_images.shape[0],1])
-        zeros = np.zeros([fake_images.shape[0],1])
+        r_ones = np.ones([real_images.shape[0],1])
+        r_zeros = np.zeros([real_images.shape[0],1])
+
+        f_ones = np.ones([fake_images.shape[0],1])
+        f_zeros = np.zeros([fake_images.shape[0],1])
 
         # Create lables for real and fake images
-        self.real_lables = np.hstack((ones,zeros))
-        self.fake_lables = np.hstack((zeros,ones))
+        self.real_lables = np.hstack((r_ones,r_zeros))
+        self.fake_lables = np.hstack((f_zeros,f_ones))
         self.lables = np.vstack((self.real_lables,self.fake_lables))
         self.combineimages()
         self.shuffledata()
     
     def combineimages(self):
+        # Make the combined image vector equal part real and fake
+        trainsize = np.abs(self.fake_lables.shape[0]-self.real_lables.shape[0])
         # Combine real and fake images
-        self.images = np.vstack((self.real_images,self.fake_images))
+        fromindex = np.random.randint(self.real_lables.shape[0]-trainsize,size=1)[0]
+        self.images = np.vstack((self.real_images[fromindex:size],self.fake_images[:size]))
 
     def shuffledata(self):
+        # Creat random vector for shuffeling
         rand_vec = np.arange(self.images.shape[0])
         np.random.shuffle(rand_vec)
         self.lables_shuf = self.lables[rand_vec]
         self.images_shuf = self.images[rand_vec]
     
     def shufflenewdata(self,fake_images):
+        # Update the shuffle images from new faked images
         self.fake_images = fake_images
         self.combineimages()
         rand_vec = np.arange(self.images.shape[0])
