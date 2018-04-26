@@ -11,6 +11,39 @@ from keras.utils import np_utils
 
 np.random.seed(42)
 
+class Traindata:
+
+    def __init__(self,real_images, fake_images):
+        self.real_images = real_images
+        self.fake_images = fake_images
+
+        ones = np.ones([real_images.shape[0],1])
+        zeros = np.zeros([fake_images.shape[0],1])
+
+        # Create lables for real and fake images
+        self.real_lables = np.hstack((ones,zeros))
+        self.fake_lables = np.hstack((zeros,ones))
+        self.lables = np.vstack((self.real_lables,self.fake_lables))
+        self.combineimages()
+        self.shuffledata()
+    
+    def combineimages(self):
+        # Combine real and fake images
+        self.images = np.vstack((self.real_images,self.fake_images))
+
+    def shuffledata(self):
+        rand_vec = np.arange(self.images.shape[0])
+        np.random.shuffle(rand_vec)
+        self.lables_shuf = self.lables[rand_vec]
+        self.images_shuf = self.images[rand_vec]
+    
+    def shufflenewdata(self,fake_images):
+        self.fake_images = fake_images
+        self.combineimages()
+        rand_vec = np.arange(self.images.shape[0])
+        np.random.shuffle(rand_vec)
+        self.lables_shuf = self.lables[rand_vec]
+        self.images_shuf = self.images[rand_vec]
 
 
 def getdata():
