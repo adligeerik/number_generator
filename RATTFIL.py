@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
-from keras.layers import Convolution2D, MaxPooling2D,Conv2D
+from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose
 from keras.utils import np_utils
+from keras.layers.advanced_activations import LeakyReLU
 
 np.random.seed(42)
 
@@ -35,7 +36,7 @@ class Traindata:
         trainsize = np.abs(self.fake_lables.shape[0]-self.real_lables.shape[0])
         # Combine real and fake images
         fromindex = np.random.randint(self.real_lables.shape[0]-trainsize,size=1)[0]
-        self.images = np.vstack((self.real_images[fromindex:size],self.fake_images[:size]))
+        self.images = np.vstack((self.real_images[fromindex:trainsize],self.fake_images[:trainsize]))
 
     def shuffledata(self):
         # Creat random vector for shuffeling
@@ -59,6 +60,9 @@ def getdata():
     mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     images=mnist.train.images.astype('float32')
     images=images.reshape(images.shape[0],28,28,1)
+    images=np.pad(images,((0,0),(2,2),(2,2),(0,0)),'constant')
+    images=2*(images-0.5)
+    print(images.shape)
     return images
 
 def getnoise(size):
@@ -67,8 +71,17 @@ def getnoise(size):
     noise=np.random.normal(0,1,(size,noisesize))
     return noise
 
-
-
+def test ():
+    model=Sequential()
+    model.add(Dense(16384,input_shape=[100],trainable=False))
+    model.add(Reshape([4,4,1024]))
+    model.add(Conv2DTranspose(512,(2,2),strides=(2,2)))
+    model.add(LeakyReLU(0.2))
+    model.add(Conv2DTranspose(256,(2,2),strides=(2,2)))
+    model.add(LeakyReLU(0.2))
+    model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
+    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    return model
 def creategenerator():
     model=Sequential()
     model.add(Dense(128,activation='relu',input_shape=[100]))
@@ -80,7 +93,7 @@ def creategenerator():
 
 def creatediscriminator():
     model=Sequential()
-    model.add(Conv2D(32,(3,3),activation='relu',input_shape=(28,28,1)))
+    model.add(Conv2D(32,(3,3),activation='relu',input_shape=(32,32,1)))
     model.add(Conv2D(32,(3,3),activation='relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
@@ -136,14 +149,6 @@ def train():
     fake_labels=np.hstack((zeros,ones))
 
 
-    #labels=np.vstack((real_labels,fake_labels))
-    #images=np.vstack((images,fake_images))
-    #random_vec=np.arange(images.shape[0])
-    #np.random.shuffle(random_vec)
-    #shuffled_labels=labels[random_vec]
-    #shuffled_images=images[random_vec]
-
-
     for i in range(10):
         settrainable(discmodel,True)
         discmodel.fit(shuffled_images[0:100],shuffled_labels[0:100],batch_size=100,verbose=1)
@@ -151,21 +156,10 @@ def train():
         settrainable(discmodel,False)
         gansmodel=creategans(discmodel,genmodel)
         gansmodel.fit(noise[0:100], real_labels[0:100],batch_size=100,verbose=1)
-
-
-
-
-    #discmodel.fit(images,labels,batch_size=1000,epochs=1,verbose=1,shuffle=True)
-
-    #random_vec=np.arange(images.shape[0])
-
-    #np.random.shuffle(random_vec)
-
-    #shuffled_labels=labels[random_vec]
-    #shuffled_images=images[random_vec]
-
-    
-    #print(labels[0:50])
-    #%print(shuffled_labels[0:50])
-
-train()
+images=getdata()
+noise=getnoise(1)
+gen=test()
+disc=creatediscriminator()
+fake=gen.predict(noise)
+fake2=disc.predict(fake)
+print(fake2.shape)
