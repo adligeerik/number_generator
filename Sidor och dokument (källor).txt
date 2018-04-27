@@ -1,0 +1,9 @@
+
+Up-sampling with Transposed Convolution:
+https://towardsdatascience.com/up-sampling-with-transposed-convolution-9ae4f2df52d0
+
+STRIVING FOR SIMPLICITY:THE ALL CONVOLUTIONAL NET:
+https://arxiv.org/pdf/1412.6806.pdf
+
+UNSUPERVISED REPRESENTATION LEARNING WITH DEEP CONVOLUTIONAL GENERATIVE ADVERSARIAL NETWORKS:
+https://arxiv.org/pdf/1511.06434.pdf
