@@ -87,6 +87,8 @@ def test():
     model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
     model.add(BatchNormalization())
     model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
+    # According to the paper on DCGAN a last layer is added, 
+    # this is not done here since the generated picures are only 28x28 and not 64x64
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 
