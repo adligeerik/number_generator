@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
-from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose
+from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose,BatchNormalization
 from keras.utils import np_utils
 from keras.layers.advanced_activations import LeakyReLU
 
@@ -80,12 +80,43 @@ def test():
     model=Sequential()
     model.add(Dense(16384,input_shape=[100],trainable=False))
     model.add(Reshape([4,4,1024]))
+    model.add(BatchNormalization())
     model.add(Conv2DTranspose(512,(2,2),strides=(2,2),activation ='relu'))
+    model.add(BatchNormalization())
     #model.add(LeakyReLU(0.2))
     model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
+    model.add(BatchNormalization())
     model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
+
+
+
+def discriminator():
+    model=Sequential()
+    model.add(Conv2D(8,(2,2),strides=(2,2),input_shape=(32,32,1)))
+    model.add(LeakyReLU(0.2))
+    model.add(BatchNormalization())
+    model.add(Conv2D(4,(2,2),strides=(2,2)))
+    model.add(LeakyReLU(0.2))
+    model.add(BatchNormalization())
+    model.add(Conv2D(2,(2,2),strides=(2,2)))
+    model.add(LeakyReLU(0.2))
+    model.add(BatchNormalization())
+    model.add(Conv2D(1,(2,2),strides=(2,2)))
+    model.add(LeakyReLU(0.2))
+    model.add(BatchNormalization())
+    model.add(Conv2D(1,(2,2),strides=(2,2),activation='sigmoid'))
+    model.add(Reshape([1]))
+    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    return model
+
+
+
+
+
+
+
 
 def creategenerator():
     model=Sequential()
@@ -164,8 +195,9 @@ def train():
 images=getdata()
 noise=getnoise(1)
 gen=test()
-disc=creatediscriminator()
+disc=discriminator()
 fake=gen.predict(noise)
 fake2=disc.predict(fake)
+#fake2=disc.predict(fake)
 print(fake2.shape)
 
