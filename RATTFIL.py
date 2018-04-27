@@ -75,8 +75,8 @@ def getnoise(size):
     noisesize=100
     noise=np.random.normal(0,1,(size,noisesize))
     return noise
-
-def test():
+"""NY GENERATOR"""
+def generator():
     model=Sequential()
     model.add(Dense(16384,input_shape=[100],trainable=False))
     model.add(Reshape([4,4,1024]))
@@ -87,13 +87,11 @@ def test():
     model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
     model.add(BatchNormalization())
     model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
-    # According to the paper on DCGAN a last layer is added, 
-    # this is not done here since the generated picures are only 28x28 and not 64x64
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 
 
-
+""" NY DISKRIMINATOR"""
 def discriminator():
     model=Sequential()
     model.add(Conv2D(8,(2,2),strides=(2,2),input_shape=(32,32,1)))
@@ -194,6 +192,14 @@ def train():
         settrainable(discmodel,False)
         gansmodel=creategans(discmodel,genmodel)
         gansmodel.fit(noise[0:100], real_labels[0:100],batch_size=100,verbose=1)
+
+def tr():
+    images=getdata()
+    discmodel=discriminator()
+    
+
+
+
 images=getdata()
 noise=getnoise(1)
 gen=test()
@@ -201,5 +207,5 @@ disc=discriminator()
 fake=gen.predict(noise)
 fake2=disc.predict(fake)
 #fake2=disc.predict(fake)
-print(fake2.shape)
+print(fake2)
 
