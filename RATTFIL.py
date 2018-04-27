@@ -76,17 +76,17 @@ def getnoise(size):
     noise=np.random.normal(0,1,(size,noisesize))
     return noise
 
-def test ():
+def test():
     model=Sequential()
     model.add(Dense(16384,input_shape=[100],trainable=False))
     model.add(Reshape([4,4,1024]))
-    model.add(Conv2DTranspose(512,(2,2),strides=(2,2)))
-    model.add(LeakyReLU(0.2))
-    model.add(Conv2DTranspose(256,(2,2),strides=(2,2)))
-    model.add(LeakyReLU(0.2))
+    model.add(Conv2DTranspose(512,(2,2),strides=(2,2),activation ='relu'))
+    #model.add(LeakyReLU(0.2))
+    model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
     model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
     model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
+
 def creategenerator():
     model=Sequential()
     model.add(Dense(128,activation='relu',input_shape=[100]))
