@@ -32,7 +32,8 @@ class Traindata:
         # Create lables for real and fake images
         self.real_lables = np.hstack((r_ones,r_zeros))
         self.fake_lables = np.hstack((f_zeros,f_ones))
-        self.lables = np.vstack((self.real_lables,self.fake_lables))
+        trainsize = min(self.fake_lables.shape[0],self.real_lables.shape[0])
+        self.lables = np.vstack((self.real_lables[:trainsize],self.fake_lables[:trainsize]))
         self.combineimages()
         self.shuffledata()
     
@@ -67,7 +68,7 @@ def getdata():
     images=images.reshape(images.shape[0],28,28,1)
     images=np.pad(images,((0,0),(2,2),(2,2),(0,0)),'constant')
     images=2*(images-0.5)
-    print(images.shape)
+    #print(images.shape)
     return images
 
 def getnoise(size):
@@ -87,7 +88,7 @@ def generator():
     model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
     model.add(BatchNormalization())
     model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
-    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
 
 
@@ -108,14 +109,8 @@ def discriminator():
     model.add(BatchNormalization())
     model.add(Conv2D(1,(2,2),strides=(2,2),activation='sigmoid'))
     model.add(Reshape([1]))
-    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
     return model
-
-
-
-
-
-
 
 
 def creategenerator():
@@ -145,14 +140,14 @@ def settrainable(discmodel,Boolean):
     else:
         for i in discmodel.layers:
             i.trainable=False
-    discmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    discmodel.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
 
 
 def creategans(discmodel,genmodel):
     gansmodel=Sequential()
     gansmodel.add(genmodel)
     gansmodel.add(discmodel)
-    gansmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    gansmodel.compile(loss='binary_crossentropy',optimizer='adam',metrics=['accuracy'])
     return gansmodel
 
 
@@ -161,51 +156,45 @@ def shuffle(batch_size,nr_images=55000):
     random_vec=np.arange(nr_images)
     return random_vec[0:batch_size]
 
+def showim(genmodel):
+    noise = getnoise(1)
+    generated = genmodel.predict(noise)
+    plt.imshow(generated.reshape([32,32]),cmap='gray')
+    plt.show()
 
-def train():
-    images=getdata()
+
+#def train():
+images = getdata()
+discmodel = discriminator()
+genmodel = generator()
+
+for i in range(40):
+    noise = getnoise(50)
+    noise_images =  genmodel.predict(noise)
+
+    traindata = Traindata(images,noise_images)
+    settrainable(discmodel,True)
+
+    discmodel.fit(traindata.images_shuf,traindata.lables_shuf[:,0],batch_size=100,epochs=1,verbose=2)
+    settrainable(discmodel,False)
     
+    noise = getnoise(100)
+    gansmodel = creategans(discmodel,genmodel)
+    gansmodel.fit(noise, np.ones([100,1]),batch_size=100,epochs=1,verbose=2)
+
 
     
-    discmodel=creatediscriminator()
-    discmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     
-    genmodel=creategenerator()
-    genmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
-    noise=getnoise(55000)
-    fake_images=genmodel.predict(noise)
-    
-
-    
-    batch_size=55000
-    ones=np.ones([batch_size,1])
-    zeros=np.zeros([batch_size,1])
-
-    real_labels=np.hstack((ones,zeros))
-    fake_labels=np.hstack((zeros,ones))
-
-
-    for i in range(10):
-        settrainable(discmodel,True)
-        discmodel.fit(shuffled_images[0:100],shuffled_labels[0:100],batch_size=100,verbose=1)
-        
-        settrainable(discmodel,False)
-        gansmodel=creategans(discmodel,genmodel)
-        gansmodel.fit(noise[0:100], real_labels[0:100],batch_size=100,verbose=1)
-
-def tr():
-    images=getdata()
-    discmodel=discriminator()
-    
+#train()
 
 
 
-images=getdata()
-noise=getnoise(1)
-gen=test()
-disc=discriminator()
-fake=gen.predict(noise)
-fake2=disc.predict(fake)
+#images=getdata()
+#noise=getnoise(1)
+#gen=test()
+#disc=discriminator()
+#fake=gen.predict(noise)
 #fake2=disc.predict(fake)
-print(fake2)
+##fake2=disc.predict(fake)
+#print(fake2)
 
