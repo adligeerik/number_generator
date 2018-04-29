@@ -10,3 +10,6 @@ https://arxiv.org/pdf/1511.06434.pdf
 
 Deconvolution and Checkerboard Artifacts
 https://distill.pub/2016/deconv-checkerboard/
+
+Reparering av bilder med GAN.
+https://arxiv.org/pdf/1611.06430.pdf
