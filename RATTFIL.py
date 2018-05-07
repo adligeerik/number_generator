@@ -91,6 +91,7 @@ def generator():
     model.add(BatchNormalization())
     model.add(Conv2DTranspose(1,(5,5),strides=(2,2),activation='tanh',padding='same'))
     model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
+
     return model
 
 
@@ -112,6 +113,7 @@ def discriminator():
     #model.add(Conv2D(1,(5,5),strides=(2,2),activation='sigmoid',padding='same'))
     model.add(Reshape([1]))
     model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
+
     return model
 
 
@@ -145,11 +147,14 @@ def settrainable(discmodel,Boolean):
     discmodel.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
 
 
+
 def creategans(discmodel,genmodel):
     gansmodel=Sequential()
     gansmodel.add(genmodel)
     gansmodel.add(discmodel)
+
     gansmodel.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
+
     return gansmodel
 
 
@@ -169,6 +174,7 @@ def showim(genmodel):
 images = getdata()
 discmodel = discriminator()
 genmodel = generator()
+
 l=50
 for i in range(200):
     noise = getnoise(l//2)
@@ -191,6 +197,21 @@ for i in range(200):
     if (i%15==0):
         showim(genmodel)
 
+for i in range(40):
+    noise = getnoise(50)
+    noise_images =  genmodel.predict(noise)
+
+    traindata = Traindata(images,noise_images)
+    settrainable(discmodel,True)
+
+    discmodel.fit(traindata.images_shuf,traindata.lables_shuf[:,0],batch_size=100,epochs=1,verbose=2)
+    settrainable(discmodel,False)
+    
+    noise = getnoise(100)
+    gansmodel = creategans(discmodel,genmodel)
+    gansmodel.fit(noise, np.ones([100,1]),batch_size=100,epochs=1,verbose=2)
+
+
 
     
     
@@ -204,8 +225,11 @@ for i in range(200):
 #disc=discriminator()
 #disc.summary()
 #gen.summary()
+#noise=getnoise(1)
+#gen=test()
 #disc=discriminator()
 #fake=gen.predict(noise)
 #fake2=disc.predict(fake)
 ##fake2=disc.predict(fake)
 #print(fake2)
+
