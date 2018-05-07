@@ -10,13 +10,15 @@ from keras.layers import Dense, Dropout, Activation, Flatten, Reshape
 from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose,BatchNormalization
 from keras.utils import np_utils
 from keras.layers.advanced_activations import LeakyReLU
+from keras import optimizers, initializers
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tf.logging.set_verbosity(tf.logging.ERROR)
 
 
 np.random.seed(42)
-
+optadam=optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
+init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 class Traindata:
 
     def __init__(self,real_images, fake_images):
@@ -32,7 +34,8 @@ class Traindata:
         # Create lables for real and fake images
         self.real_lables = np.hstack((r_ones,r_zeros))
         self.fake_lables = np.hstack((f_zeros,f_ones))
-        self.lables = np.vstack((self.real_lables,self.fake_lables))
+        trainsize = min(self.fake_lables.shape[0],self.real_lables.shape[0])
+        self.lables = np.vstack((self.real_lables[:trainsize],self.fake_lables[:trainsize]))
         self.combineimages()
         self.shuffledata()
     
@@ -67,7 +70,7 @@ def getdata():
     images=images.reshape(images.shape[0],28,28,1)
     images=np.pad(images,((0,0),(2,2),(2,2),(0,0)),'constant')
     images=2*(images-0.5)
-    print(images.shape)
+    #print(images.shape)
     return images
 
 def getnoise(size):
@@ -78,44 +81,38 @@ def getnoise(size):
 """NY GENERATOR"""
 def generator():
     model=Sequential()
-    model.add(Dense(16384,input_shape=[100],trainable=False))
+    model.add(Dense(16384,input_shape=[100]))
     model.add(Reshape([4,4,1024]))
     model.add(BatchNormalization())
-    model.add(Conv2DTranspose(512,(2,2),strides=(2,2),activation ='relu'))
+    model.add(Conv2DTranspose(512,(5,5),strides=(2,2),activation ='relu',padding='same'))
     model.add(BatchNormalization())
     #model.add(LeakyReLU(0.2))
-    model.add(Conv2DTranspose(256,(2,2),strides=(2,2),activation ='relu'))
+    model.add(Conv2DTranspose(256,(5,5),strides=(2,2),activation ='relu',padding='same'))
     model.add(BatchNormalization())
-    model.add(Conv2DTranspose(1,(2,2),strides=(2,2),activation='tanh'))
-    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.add(Conv2DTranspose(1,(5,5),strides=(2,2),activation='tanh',padding='same'))
+    model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
     return model
 
 
 """ NY DISKRIMINATOR"""
 def discriminator():
     model=Sequential()
-    model.add(Conv2D(8,(2,2),strides=(2,2),input_shape=(32,32,1)))
+    model.add(Conv2D(128,(5,5),strides=(2,2),input_shape=(32,32,1),padding='same'))
     model.add(LeakyReLU(0.2))
     model.add(BatchNormalization())
-    model.add(Conv2D(4,(2,2),strides=(2,2)))
+    model.add(Conv2D(256,(5,5),strides=(2,2),padding='same'))
     model.add(LeakyReLU(0.2))
     model.add(BatchNormalization())
-    model.add(Conv2D(2,(2,2),strides=(2,2)))
+    model.add(Conv2D(512,(5,5),strides=(2,2),padding='same'))
     model.add(LeakyReLU(0.2))
     model.add(BatchNormalization())
-    model.add(Conv2D(1,(2,2),strides=(2,2)))
-    model.add(LeakyReLU(0.2))
-    model.add(BatchNormalization())
-    model.add(Conv2D(1,(2,2),strides=(2,2),activation='sigmoid'))
+    model.add(Conv2D(1,(4,4),strides=(2,2),padding='valid',activation='sigmoid'))
+    #model.add(LeakyReLU(0.2))
+    #model.add(BatchNormalization())
+    #model.add(Conv2D(1,(5,5),strides=(2,2),activation='sigmoid',padding='same'))
     model.add(Reshape([1]))
-    model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
     return model
-
-
-
-
-
-
 
 
 def creategenerator():
@@ -145,14 +142,14 @@ def settrainable(discmodel,Boolean):
     else:
         for i in discmodel.layers:
             i.trainable=False
-    discmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    discmodel.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
 
 
 def creategans(discmodel,genmodel):
     gansmodel=Sequential()
     gansmodel.add(genmodel)
     gansmodel.add(discmodel)
-    gansmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+    gansmodel.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
     return gansmodel
 
 
@@ -161,51 +158,54 @@ def shuffle(batch_size,nr_images=55000):
     random_vec=np.arange(nr_images)
     return random_vec[0:batch_size]
 
+def showim(genmodel):
+    noise = getnoise(1)
+    generated = genmodel.predict(noise)
+    plt.imshow(generated.reshape([32,32]),cmap='gray')
+    plt.show()
 
-def train():
-    images=getdata()
+
+#def train():
+images = getdata()
+discmodel = discriminator()
+genmodel = generator()
+l=50
+for i in range(200):
+    noise = getnoise(l//2)
+    noise_images =  genmodel.predict(noise)
+
+    #traindata = Traindata(images,noise_images)
+    settrainable(discmodel,True)
+
+    #discmodel.fit(traindata.images_shuf,traindata.lables_shuf[:,0],batch_size=100,epochs=1,verbose=2)
+    print("Discriminator")
+    discmodel.fit(images[i*l//2:(i+1)*l//2,:,:,:],np.ones([l//2,1]),batch_size=l//2,epochs=1,verbose=2)
+    discmodel.fit(noise_images,np.zeros([l//2,1]),batch_size=l//2,epochs=1,verbose=2)
+    settrainable(discmodel,False)
     
+    noise = getnoise(l)
+    gansmodel = creategans(discmodel,genmodel)
+    print("Generator")
+    gansmodel.fit(noise, np.ones([l,1]),batch_size=l,epochs=1,verbose=2)
+
+    if (i%15==0):
+        showim(genmodel)
+
 
     
-    discmodel=creatediscriminator()
-    discmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
     
-    genmodel=creategenerator()
-    genmodel.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
-    noise=getnoise(55000)
-    fake_images=genmodel.predict(noise)
-    
-
-    
-    batch_size=55000
-    ones=np.ones([batch_size,1])
-    zeros=np.zeros([batch_size,1])
-
-    real_labels=np.hstack((ones,zeros))
-    fake_labels=np.hstack((zeros,ones))
-
-
-    for i in range(10):
-        settrainable(discmodel,True)
-        discmodel.fit(shuffled_images[0:100],shuffled_labels[0:100],batch_size=100,verbose=1)
-        
-        settrainable(discmodel,False)
-        gansmodel=creategans(discmodel,genmodel)
-        gansmodel.fit(noise[0:100], real_labels[0:100],batch_size=100,verbose=1)
-
-def tr():
-    images=getdata()
-    discmodel=discriminator()
-    
+#train()
 
 
 
-images=getdata()
-noise=getnoise(1)
-gen=test()
-disc=discriminator()
-fake=gen.predict(noise)
-fake2=disc.predict(fake)
+#images=getdata()
+##noise=getnoise(1)
+#gen=generator()
+#disc=discriminator()
+#disc.summary()
+#gen.summary()
+#disc=discriminator()
+#fake=gen.predict(noise)
 #fake2=disc.predict(fake)
-print(fake2)
-
+##fake2=disc.predict(fake)
+#print(fake2)
