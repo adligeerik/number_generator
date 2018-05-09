@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 import matplotlib as mpl
+mpl.use('TkAgg') #Needed on Jacobs laptop for some reason, might be detrimental on other.
 import matplotlib.pyplot as plt
 from keras import backend as K
 from keras.models import Sequential
@@ -82,10 +83,10 @@ def getdata(digit=1):
     images=np.pad(images,((0,0),(2,2),(2,2),(0,0)),'constant')
     images=2*(images-0.5)
     plt.imshow(images[3,:,:,0])
-    plt.show()
+    #plt.show()
 
     plt.imshow(images[444,:,:,0])
-    plt.show()
+    #plt.show()
     #print(images.shape)
     return images
 
@@ -187,6 +188,7 @@ def showim(genmodel,index):
     noise = getnoise(1)
     generated = genmodel.predict(noise)
     filename="im"+str(index)+".png"
+    print("Saving image to " + filename)
     plt.imshow(generated.reshape([32,32]),cmap='gray')
     plt.savefig(filename)
     #plt.show()
@@ -215,21 +217,20 @@ for i in range(200):
     settrainable(discmodel,True)
 
     #discmodel.fit(traindata.images_shuf,traindata.lables_shuf[:,0],batch_size=100,epochs=1,verbose=2)
-    print("Discriminator")
+    print("Discriminator on real images:")
     discmodel.fit(images[i*l//2:(i+1)*l//2,:,:,:],np.ones([l//2,1]),batch_size=l//2,epochs=1,verbose=2)
+    print("Discriminator on fake images:")
     discmodel.fit(noise_images,np.zeros([l//2,1]),batch_size=l//2,epochs=1,verbose=2)
-    settrainable(discmodel,False)
 
+    settrainable(discmodel,False)
     noise = getnoise(l)
     gansmodel = creategans(discmodel,genmodel)
     print("Generator")
     gansmodel.fit(noise, np.ones([l,1]),batch_size=l,epochs=1,verbose=2)
     distance=dist(images[0],noise_images[0])
-    print("Distance:")
-    print(distance)
+    print("Distance after iteration " + str(i) + " : " + str(distance))
 
     if (i%5==0):
-        print(i)
         showim(genmodel,i//5)
 
 for i in range(40):
