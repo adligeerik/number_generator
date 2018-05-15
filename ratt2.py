@@ -43,9 +43,13 @@ def getdata(digit=None):
 
 def getcifar(digit=None):
     """Hämta bilderna"""
-    (x_train, y_train), (x_test, y_test) = cifar10.load_data(one_hot=True)
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     images=np.float32(2*(np.vstack((x_train,x_test))/255-0.5))
     labels=np.vstack((y_train,y_test))
+    o=np.zeros([60000,10])
+    for i in range(60000):
+        o[i,labels[i]]=1
+    labels=o
     print(images.shape)
     print(labels.shape)
     if digit==None:
