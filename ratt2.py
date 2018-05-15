@@ -11,7 +11,8 @@ from keras.layers import Convolution2D, MaxPooling2D,Conv2D,Conv2DTranspose,Batc
 from keras.utils import np_utils
 from keras.layers.advanced_activations import LeakyReLU
 from keras import optimizers, initializers
-from keras.optimizers import SGD
+from keras.optimizers import SGD,Adam
+from keras.datasets import cifar10
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 tf.logging.set_verbosity(tf.logging.ERROR)
@@ -40,7 +41,25 @@ def getdata(digit=None):
 
     return images
 
-
+def getcifar(digit=None):
+    """Hämta bilderna"""
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data(one_hot=True)
+    images=np.float32(2*(np.vstack((x_train,x_test))/255-0.5))
+    labels=np.vstack((y_train,y_test))
+    print(images.shape)
+    print(labels.shape)
+    if digit==None:
+        images=images
+    else:
+        images=images
+        labels=labels
+        col=labels[:,digit]
+        col=col!=0
+        images=images[col]
+    #images=images.reshape(images.shape[0],28,28,1)
+    #images=np.pad(images,((0,0),(2,2),(2,2),(0,0)),'constant')
+    #images=2*(images-0.5)
+    return images
 
 
 
@@ -51,65 +70,52 @@ def getnoise(size):
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
 """NY GENERATOR"""
+
+
+
 def generator():
-    model = Sequential()
-    model.add(Dense(input_dim=100, output_dim=1024))
-    model.add(Activation('tanh'))
-    model.add(Dense(128*7*7))
-    model.add(BatchNormalization())
-    model.add(Activation('tanh'))
-    model.add(Reshape((7, 7, 128), input_shape=(128*7*7,)))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(64, (5, 5), padding='same'))
-    model.add(Activation('tanh'))
-    model.add(UpSampling2D(size=(2, 2)))
-    model.add(Conv2D(1, (5, 5), padding='same'))
-    model.add(Activation('tanh'))
-    return model
-
-
-def generator1():
     model=Sequential()
     model.add(Dense(128*8*8,input_shape=[10],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     model.add(LeakyReLU(0.2))
     model.add(Reshape([8,8,128]))
     model.add(UpSampling2D((2,2)))
-    #model.add(BatchNormalization())
     model.add(Conv2D(64,(5,5),strides=(1,1),padding='same'))
-    #model.add(BatchNormalization())
     model.add(LeakyReLU(0.2))
     model.add(UpSampling2D((2,2)))
-    #model.add(BatchNormalization())
     model.add(Conv2D(1,(5,5),strides=(1,1),activation='tanh',padding='valid'))
-    #model.add(BatchNormalization())
-
-    #model.add(LeakyReLU(0.2))
-    #model.add(Conv2DTranspose(1,(5,5),strides=(2,2),activation='tanh',padding='same'))
-    #model.add(LeakyReLU(0.2))
-    #model.add(BatchNormalization())
-    #model.add(Conv2DTranspose(1,(5,5),strides=(2,2),activation='tanh',padding='same'))
-    #model.add(Flatten())
     model.summary()
-
-
     return model
 
 
-def generator2():
+def generator_cifar():
     model=Sequential()
-    model.add(Dense(256,input_shape=[100]))
+    model.add(Dense(128*8*8,input_shape=[10],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     model.add(LeakyReLU(0.2))
-    model.add(Dense(512))
+    model.add(Reshape([8,8,128]))
+    model.add(UpSampling2D((2,2)))
+    model.add(Conv2D(64,(5,5),strides=(1,1),padding='same'))
     model.add(LeakyReLU(0.2))
-    model.add(Dense(784))
-    model.add(Reshape([28,28,1]))
-    model.add(Conv2D(5,(9,9),padding='same'))
-    model.add(LeakyReLU(0.2))
-    model.add(Reshape([5*784]))
-    model.add(Dense(784,activation='tanh'))
+    model.add(UpSampling2D((2,2)))
+    model.add(Conv2D(3,(5,5),strides=(1,1),activation='tanh',padding='same'))
+    model.summary()
     return model
 
-def discriminator3():
+
+def discriminator_cifar():
+    model = Sequential()
+    model.add(Conv2D(64, kernel_size=(5, 5), strides=(2, 2), padding='same', input_shape=(32, 32,3), kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    model.add(LeakyReLU(0.2))
+    model.add(Dropout(0.3))
+    model.add(Conv2D(128, kernel_size=(5, 5), strides=(2, 2), padding='same'))
+    model.add(LeakyReLU(0.2))
+    model.add(Dropout(0.3))
+    model.add(Flatten())
+    model.add(Dense(1, activation='sigmoid'))
+    return model
+
+
+
+def discriminator():
     model = Sequential()
     model.add(Conv2D(64, kernel_size=(5, 5), strides=(2, 2), padding='same', input_shape=(28, 28,1), kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     model.add(LeakyReLU(0.2))
@@ -119,73 +125,6 @@ def discriminator3():
     model.add(Dropout(0.3))
     model.add(Flatten())
     model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss='binary_crossentropy', optimizer=optadam)
-    return model
-
-def discriminator2():
-    model=Sequential()
-    model.add(Dense(1024,input_shape=[784]))
-    model.add(LeakyReLU(0.2))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(512))
-    model.add(LeakyReLU(0.2))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(256))
-    model.add(LeakyReLU(0.2))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(128))
-    model.add(LeakyReLU(0.2))
-    model.add(Dropout(0.3))
-
-    model.add(Dense(1,activation='sigmoid'))
-    model.add(LeakyReLU(0.2))
-    #model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
-    return model
-def discriminator1():
-    model=Sequential()
-    model.add(Conv2D(128,(5,5),strides=(2,2),input_shape=(32,32,1),padding='same'))
-    model.add(LeakyReLU(0.2))
-    model.add(BatchNormalization())
-    model.add(Conv2D(256,(5,5),strides=(2,2),padding='same'))
-    model.add(LeakyReLU(0.2))
-    model.add(BatchNormalization())
-    model.add(Conv2D(512,(5,5),strides=(2,2),padding='same'))
-    model.add(LeakyReLU(0.2))
-    model.add(BatchNormalization())
-    model.add(Conv2D(1,(4,4),strides=(2,2),padding='valid',activation='sigmoid'))
-    #model.add(LeakyReLU(0.2))
-    #model.add(BatchNormalization())
-    #model.add(Conv2D(1,(5,5),strides=(2,2),activation='sigmoid',padding='same'))
-    model.add(Reshape([1]))
-    #model.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
-
-    return model
-
-
-
-
-""" NY DISKRIMINATOR"""
-def discriminator():
-    model = Sequential()
-    model.add(
-            Conv2D(64, (5, 5),
-            padding='same',
-            input_shape=(28, 28, 1))
-            )
-    model.add(Activation('tanh'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(128, (5, 5)))
-    model.add(Activation('tanh'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Flatten())
-    model.add(Dense(1024))
-    model.add(Activation('tanh'))
-    model.add(Dense(1))
-    model.add(Activation('sigmoid'))
-
     return model
 
 
@@ -206,8 +145,6 @@ def creategans(discmodel,genmodel):
     gansmodel.add(genmodel)
     discmodel.trainable=False
     gansmodel.add(discmodel)
-    #gansmodel.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
-
     return gansmodel
 
 
@@ -216,15 +153,15 @@ def creategans(discmodel,genmodel):
 noise_test=getnoise(5**2)
 def showim(genmodel,index,noise):
     n_ims=5
-    lk=28
+    lk=32
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,3])
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims])
+    imtot=np.zeros([lk*n_ims,lk*n_ims,3])
     n=0
     m=0
 
@@ -238,31 +175,41 @@ def showim(genmodel,index,noise):
             m+=lk
         n+=lk
     plt.axis('off')
-    plt.imshow(imtot,cmap='gray')
-    plt.savefig("ims/"+filename)
+    plt.imshow(imtot)
+    plt.savefig("ims7/"+filename)
 
 
 
 
 def train():
-    g=generator1()
-    d=discriminator3()
+    getcifar()
+    #(x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    #images=np.float32(*(np.vstack((x_train,x_test))/255-0.5))
+    images=getcifar(9)
+    print(images.shape)
+    plt.imshow(images[234])
+    plt.show()
+    plt.imshow(images[9])
+    plt.show()
+    LR = 0.0002  # initial learning rate
+    B1 = 0.5 # momentum term
+    opt = Adam(lr=LR,beta_1=B1)
+    g=generator_cifar()
+    d=discriminator_cifar()
+
     g.summary()
     d.summary()
-    d_on_g=creategans(d,g)
-    d_optim = SGD(lr=0.0005, momentum=0.9, nesterov=True)
-    g_optim = SGD(lr=0.0005, momentum=0.9, nesterov=True)
-    g.compile(loss='binary_crossentropy', optimizer="SGD")
-    d_on_g.compile(loss='binary_crossentropy', optimizer=g_optim)
-    d.trainable = True
-    d.compile(loss='binary_crossentropy', optimizer=d_optim)
 
-    images=getdata()
-    #a,b,c,d1=images.shape
-    #images=images.reshape([a,784])
-    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-    #images=mnist.train.images.astype('float32')
-    #i1,i2,i3,i4=images.shape
+
+
+    d.trainable=True
+    d.compile(loss='binary_crossentropy', optimizer=opt)
+    g.compile(loss='binary_crossentropy', optimizer=opt)
+    d.trainable=False
+    d_on_g=creategans(d,g)
+    d_on_g.compile(loss='binary_crossentropy', optimizer=opt)
+    #images=getdata()
+    #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
     print(i1)
     epochs=50
@@ -277,10 +224,10 @@ def train():
             ld=d.train_on_batch(noise_images[0:batch_size],np.zeros([batch_size,1]))
             print("Epoch: ",i," D Loss: ",ld)
 
-            d.trainable=False
+            #d.trainable=False
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
             lg=d_on_g.train_on_batch(noise,np.ones([batch_size*2,1]))
-            d.trainable=True
+            #d.trainable=True
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
             print("Epoch: ",i," G Loss: ", lg)
             if (j%50==0):
