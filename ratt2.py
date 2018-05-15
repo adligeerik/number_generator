@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from tensorflow.examples.tutorials.mnist import input_data
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from keras import backend as K
 from keras.models import Sequential
