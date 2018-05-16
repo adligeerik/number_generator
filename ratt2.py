@@ -28,7 +28,6 @@ init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 
 
 
-
 def getnoise(size):
     """Generera brus till generatorn"""
     noisesize=10
@@ -36,6 +35,7 @@ def getnoise(size):
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
 """NY GENERATOR"""
+
 
 
 def settrainable(discmodel,Boolean):
@@ -112,6 +112,7 @@ def train():
     #images=getdata()
     #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
+    print(i1)
     epochs=50
     batch_size=128//2
     k=0

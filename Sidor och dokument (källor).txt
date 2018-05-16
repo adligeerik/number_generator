@@ -1,4 +1,4 @@
-
+﻿
 Up-sampling with Transposed Convolution:
 https://towardsdatascience.com/up-sampling-with-transposed-convolution-9ae4f2df52d0
 
@@ -16,3 +16,6 @@ https://arxiv.org/pdf/1611.06430.pdf
 
 Bild till bild översättning med GANN.
 https://arxiv.org/pdf/1611.07004.pdf
+
+Git med ett dcgan nätverk som ska fungera enligt föfattaren
+https://github.com/vwrs/dcgan-mnist
