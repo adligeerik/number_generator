@@ -78,17 +78,11 @@ def cifarmodel():
     d.add(Dense(1, activation='sigmoid'))
     return g,d
 
-
 def flowermodel():
     g=Sequential()
-    g.add(Dense(4*4*512,input_shape=[100],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    g.add(Dense(128*8*8,input_shape=[10],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     g.add(LeakyReLU(0.2))
-    g.add(Reshape([4,4,512]))
-    g.add(Conv2D(256,(5,5),strides=(1,1),padding='same'))
-    g.add(LeakyReLU(0.2))
-    g.add(UpSampling2D((2,2)))
-    g.add(Conv2D(128,(5,5),strides=(1,1),padding='same'))
-    g.add(LeakyReLU(0.2))
+    g.add(Reshape([8,8,128]))
     g.add(UpSampling2D((2,2)))
     g.add(Conv2D(64,(5,5),strides=(1,1),padding='same'))
     g.add(LeakyReLU(0.2))
@@ -111,10 +105,52 @@ def flowermodel():
     d.add(Conv2D(128, kernel_size=(5, 5), strides=(2, 2), padding='same'))
     d.add(LeakyReLU(0.2))
     d.add(Dropout(0.3))
+    d.add(Flatten())
+    d.add(Dense(1, activation='sigmoid'))
+    return g,d
+
+
+
+
+
+
+
+def flowermodel1():
+    g=Sequential()
+    g.add(Dense(4*4*512,input_shape=[100],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    g.add(LeakyReLU(0.2))
+    g.add(Reshape([4,4,512]))
+    g.add(Conv2D(256,(5,5),strides=(1,1),padding='same'))
+    g.add(LeakyReLU(0.2))
+    g.add(UpSampling2D((2,2)))
+    g.add(Conv2D(128,(5,5),strides=(1,1),padding='same'))
+    g.add(LeakyReLU(0.2))
+    g.add(UpSampling2D((2,2)))
+    g.add(Conv2D(64,(5,5),strides=(1,1),padding='same'))
+    g.add(LeakyReLU(0.2))
+    g.add(UpSampling2D((2,2)))
+    g.add(Conv2D(32,(5,5),strides=(1,1),padding='same'))
+    g.add(LeakyReLU(0.2))
+    g.add(UpSampling2D((2,2)))
+    g.add(Conv2D(3,(5,5),strides=(1,1),activation='tanh',padding='same'))
+    g.summary()
+
+
+
+    d = Sequential()
+    d.add(Conv2D(64, kernel_size=(5, 5), strides=(2, 2), padding='same', input_shape=(64, 64,3), kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    d.add(LeakyReLU(0.2))
+    d.add(Dropout(0.3))
+    d.add(Conv2D(128, kernel_size=(5, 5), strides=(2, 2), padding='same'))
+    d.add(LeakyReLU(0.2))
+    d.add(Dropout(0.3))
     d.add(Conv2D(256, kernel_size=(5, 5), strides=(2, 2), padding='same'))
     d.add(LeakyReLU(0.2))
     d.add(Dropout(0.3))
     d.add(Conv2D(512, kernel_size=(5, 5), strides=(2, 2), padding='same'))
+    d.add(LeakyReLU(0.2))
+    d.add(Dropout(0.3))
+    d.add(Conv2D(1024, kernel_size=(5, 5), strides=(2, 2), padding='same'))
     #d.add(LeakyReLU(0.2))
     d.add(Dropout(0.3))
     d.add(Flatten())

@@ -30,7 +30,7 @@ init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 
 def getnoise(size):
     """Generera brus till generatorn"""
-    noisesize=100
+    noisesize=10
     #noise=np.random.normal(0,1,(size,noisesize))
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
@@ -115,7 +115,7 @@ def train():
     #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
     print(i1)
-    epochs=1
+    epochs=10
     batch_size=128//2
     k=0
     for i in range(epochs):
