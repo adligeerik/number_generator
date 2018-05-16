@@ -115,7 +115,7 @@ def train():
     #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
     print(i1)
-    epochs=50
+    epochs=1
     batch_size=128//2
     k=0
     for i in range(epochs):
@@ -125,16 +125,18 @@ def train():
 
             d.train_on_batch(images[j*batch_size:(j+1)*batch_size],np.ones([batch_size,1]))
             ld=d.train_on_batch(noise_images[0:batch_size],np.zeros([batch_size,1]))
-            print("Epoch: ",i," D Loss: ",ld)
 
+            if (j%10==0):
+                print("Epoch: ",i," D Loss: ",ld)
             #d.trainable=False
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
             lg=d_on_g.train_on_batch(noise,np.ones([batch_size*2,1]))
             #d.trainable=True
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
-            print("Epoch: ",i," G Loss: ", lg)
+            if (j%10==0):
+                print("Epoch: ",i," G Loss: ", lg)
             if (j%50==0):
-                #showim(g,k,noise_test)
+                showim(g,k,noise_test)
                 k=k+1
             if (j%100==0):
                 print(j)
