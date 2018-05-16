@@ -131,7 +131,7 @@ def train():
             lg=d_on_g.train_on_batch(noise,np.ones([batch_size*2,1]))
             #d.trainable=True
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
-            if (j%50==0):
+            if (j%10==0):
                 print("Epoch: ",i," G Loss: ", lg)
             if (j%50==0):
                 showim(g,k,noise_test)
