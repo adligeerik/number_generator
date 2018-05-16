@@ -83,8 +83,9 @@ def showim(genmodel,index,noise):
 
             m+=lk
         n+=lk
-    print(np.max(imtot),np.min(imtot))
+
     imtot=(imtot+1)/2
+    print('Printing to: '+filename)
     plt.axis('off')
     plt.imshow(imtot)
     #plt.show()
@@ -135,12 +136,9 @@ def train():
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
             if (j%10==0):
                 print("Epoch: ",i," G Loss: ", lg)
-            if (j%50==0):
+            if (j%100==0):
                 showim(g,k,noise_test)
                 k=k+1
-            if (j%100==0):
-                print(j)
-                showim(g,k,noise_test)
-    filename= "ims/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
+    filename= "ims8/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
     g.save(filename)
 train()
