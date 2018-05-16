@@ -60,17 +60,17 @@ def creategans(discmodel,genmodel):
 
 
 noise_test=getnoise(8**2)
-def showim(genmodel,index,noise):
+def showim(genmodel,index,noise,datashape):
     n_ims=8
-    lk=64
+    lk=datashape[1]
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,3])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,datashape[-1]])
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims,3])
+    imtot=np.zeros([lk*n_ims,lk*n_ims,datashape[-1]])
     n=0
     m=0
 
@@ -88,14 +88,14 @@ def showim(genmodel,index,noise):
     print('Printing to: '+filename)
     plt.axis('off')
     plt.imshow(imtot)
-    #plt.show()
-    plt.savefig("ims8/"+filename)
+    plt.show()
+    #plt.savefig("ims8/"+filename)
 
 
 
 
 def train():
-    dataset="flowers"
+    dataset="mnist"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
@@ -116,10 +116,12 @@ def train():
     #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
     print(i1)
-    epochs=10
+    epochs=40
     batch_size=128//2
     k=0
+    filename= "ims8/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
     for i in range(epochs):
+        g.save(filename)
         for j in range(i1//batch_size):
             noise=getnoise(batch_size*2)
             noise_images=g.predict(noise)
@@ -137,8 +139,8 @@ def train():
             if (j%10==0):
                 print("Epoch: ",i," G Loss: ", lg)
             if (j%100==0):
-                showim(g,k,noise_test)
+                #showim(g,k,noise_test,[i1,i2,i3,i4])
                 k=k+1
-    filename= "ims8/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
-    g.save(filename)
+
+
 train()

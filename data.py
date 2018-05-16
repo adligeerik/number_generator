@@ -9,12 +9,21 @@ def loaddata(dataset,digit=None):
         images=getcifar(digit)
     elif dataset == "flowers":
         images= getflowers()*2
+    elif dataset == "flowers128":
+        images= getflowers()*2
     return images
 
-
+def loadlables(dataset):
+    mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+    labels=mnist.train.labels
+    return labels
 
 def getflowers():
     images=np.load('flowers.npz')['data']
+    return images
+
+def getflowers128():
+    images=np.load('flowers128.npz')['data']
     return images
 
 
