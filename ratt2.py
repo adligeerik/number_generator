@@ -59,18 +59,18 @@ def creategans(discmodel,genmodel):
 
 
 
-#noise_test=getnoise(5**2)
+noise_test=getnoise(5**2)
 def showim(genmodel,index,noise):
     n_ims=5
-    lk=28
+    lk=32
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,3])
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims])
+    imtot=np.zeros([lk*n_ims,lk*n_ims,3])
     n=0
     m=0
 
@@ -85,14 +85,14 @@ def showim(genmodel,index,noise):
         n+=lk
     plt.axis('off')
     plt.imshow(imtot,cmap='gray')
-    plt.show()
-    #plt.savefig("ims7/"+filename)
+    #plt.show()
+    plt.savefig("ims/"+filename)
 
 
 
 
 def train():
-    dataset="mnist"
+    dataset="cifar"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
@@ -113,7 +113,7 @@ def train():
     #mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
     i1,i2,i3,i4=images.shape
     print(i1)
-    epochs=50
+    epochs=5
     batch_size=128//2
     k=0
     for i in range(epochs):
@@ -132,7 +132,7 @@ def train():
             #d.compile(loss='binary_crossentropy',optimizer=optadam,metrics=['accuracy'])
             print("Epoch: ",i," G Loss: ", lg)
             if (j%50==0):
-                #showim(g,k,noise_test)
+                showim(g,k,noise_test)
                 k=k+1
             if (j%100==0):
                 print(j)
