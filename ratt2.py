@@ -137,5 +137,5 @@ def train():
             if (j%100==0):
                 print(j)
     filename= "ims/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
-    g.save()
+    g.save(filename)
 train()
