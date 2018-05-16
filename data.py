@@ -8,7 +8,7 @@ def loaddata(dataset,digit=None):
     elif dataset == "cifar":
         images=getcifar(digit)
     elif dataset == "flowers":
-        images= getflowers()
+        images= getflowers()*2
     return images
 
 

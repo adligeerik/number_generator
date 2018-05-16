@@ -30,7 +30,7 @@ init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 
 def getnoise(size):
     """Generera brus till generatorn"""
-    noisesize=10
+    noisesize=100
     #noise=np.random.normal(0,1,(size,noisesize))
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
@@ -59,18 +59,18 @@ def creategans(discmodel,genmodel):
 
 
 
-#noise_test=getnoise(5**2)
+noise_test=getnoise(8**2)
 def showim(genmodel,index,noise):
-    n_ims=5
-    lk=28
+    n_ims=8
+    lk=64
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,3])
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims])
+    imtot=np.zeros([lk*n_ims,lk*n_ims,3])
     n=0
     m=0
 
@@ -83,16 +83,18 @@ def showim(genmodel,index,noise):
 
             m+=lk
         n+=lk
+    print(np.max(imtot),np.min(imtot))
+    imtot=(imtot+1)/2
     plt.axis('off')
-    plt.imshow(imtot,cmap='gray')
-    plt.show()
-    #plt.savefig("ims7/"+filename)
+    plt.imshow(imtot)
+    #plt.show()
+    plt.savefig("ims8/"+filename)
 
 
 
 
 def train():
-    dataset="mnist"
+    dataset="flowers"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
@@ -136,6 +138,7 @@ def train():
                 k=k+1
             if (j%100==0):
                 print(j)
+                showim(g,k,noise_test)
     filename= "ims/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
-    g.save()
+    g.save(filename)
 train()
