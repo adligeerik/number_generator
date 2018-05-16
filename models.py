@@ -12,6 +12,7 @@ from keras.utils import np_utils
 from keras.layers.advanced_activations import LeakyReLU
 from keras import optimizers, initializers
 from keras.optimizers import SGD
+from keras.models import load_model
 
 def loadmodel(dataset):
     if dataset == "mnist":
@@ -28,7 +29,7 @@ def loadmodel(dataset):
 
 def mnistmodel():
     g = Sequential()
-    g.add(Dense(128*8*8,input_shape=[100],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    g.add(Dense(128*8*8,input_shape=[10],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     g.add(LeakyReLU(0.2))
     g.add(Reshape([8,8,128]))
     g.add(UpSampling2D((2,2)))
