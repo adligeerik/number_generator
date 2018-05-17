@@ -30,7 +30,7 @@ init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 
 def getnoise(size):
     """Generera brus till generatorn"""
-    noisesize=10
+    noisesize=1
     #noise=np.random.normal(0,1,(size,noisesize))
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
@@ -65,12 +65,12 @@ def showim(genmodel,index,noise,datashape):
     lk=datashape[1]
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,datashape[-1]])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk])
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims,datashape[-1]])
+    imtot=np.zeros([lk*n_ims,lk*n_ims])
     n=0
     m=0
 
