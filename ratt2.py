@@ -88,14 +88,14 @@ def showim(genmodel,index,noise,datashape):
     print('Printing to: '+filename)
     plt.axis('off')
     plt.imshow(imtot)
-    plt.show()
-    #plt.savefig("ims8/"+filename)
+    #plt.show()
+    plt.savefig("ims8/"+filename)
 
 
 
 
 def train():
-    dataset="mnist"
+    dataset="flowers128"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
@@ -139,7 +139,7 @@ def train():
             if (j%10==0):
                 print("Epoch: ",i," G Loss: ", lg)
             if (j%100==0):
-                #showim(g,k,noise_test,[i1,i2,i3,i4])
+                showim(g,k,noise_test,[i1,i2,i3,i4])
                 k=k+1
 
 

@@ -10,7 +10,7 @@ def loaddata(dataset,digit=None):
     elif dataset == "flowers":
         images= getflowers()*2
     elif dataset == "flowers128":
-        images= getflowers()*2
+        images= getflowers128()
     return images
 
 def loadlables(dataset):
