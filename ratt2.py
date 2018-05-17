@@ -30,7 +30,7 @@ init=initializers.RandomNormal(mean=0.0, stddev=0.02, seed=None)
 
 def getnoise(size):
     """Generera brus till generatorn"""
-    noisesize=10
+    noisesize=1
     #noise=np.random.normal(0,1,(size,noisesize))
     noise = np.random.uniform(-1, 1, size=(size, noisesize))
     return noise
@@ -95,7 +95,7 @@ def showim(genmodel,index,noise,datashape):
 
 
 def train():
-    dataset="flowers128"
+    dataset="mnist"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
