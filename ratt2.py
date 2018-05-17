@@ -59,9 +59,9 @@ def creategans(discmodel,genmodel):
 
 
 
-noise_test=getnoise(8**2)
+noise_test=getnoise(5**2)
 def showim(genmodel,index,noise,datashape):
-    n_ims=8
+    n_ims=5
     lk=datashape[1]
     #noise = getnoise(n_ims**2)
 
@@ -89,13 +89,13 @@ def showim(genmodel,index,noise,datashape):
     plt.axis('off')
     plt.imshow(imtot)
     #plt.show()
-    plt.savefig("ims8/"+filename)
+    plt.savefig("imscats/"+filename)
 
 
 
 
 def train():
-    dataset="flowers128"
+    dataset="cats"
     images=loaddata(dataset)
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
@@ -119,7 +119,7 @@ def train():
     epochs=40
     batch_size=128//2
     k=0
-    filename= "ims8/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
+    filename= "imscats/"+str(dataset)+"_n_epochs_"+str(epochs)+".h5"
     for i in range(epochs):
         g.save(filename)
         for j in range(i1//batch_size):

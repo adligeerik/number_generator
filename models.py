@@ -23,6 +23,8 @@ def loadmodel(dataset):
         g,d= flowermodel()
     elif dataset == "flowers128":
         g,d= flower128model()
+    elif dataset == "cats":
+        g,d= flower128model()
     else:
         g=load_model(dataset)
         d=0

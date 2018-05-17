@@ -11,6 +11,8 @@ def loaddata(dataset,digit=None):
         images= getflowers()*2
     elif dataset == "flowers128":
         images= getflowers128()
+    elif dataset == "cats":
+        images= getcats()
     return images
 
 def loadlables(dataset):
@@ -24,6 +26,10 @@ def getflowers():
 
 def getflowers128():
     images=np.load('flowers128.npz')['data']
+    return images
+
+def getcats():
+    images = np.load('cats.npz')['data']
     return images
 
 
