@@ -65,12 +65,12 @@ def showim(genmodel,index,noise,datashape):
     lk=datashape[1]
     #noise = getnoise(n_ims**2)
 
-    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk,datashape[-1]])
+    generated = genmodel.predict(noise).reshape([n_ims,n_ims,lk,lk)
 
     filename="im"+str(index)+".png"
     imlist=[]
     j=0
-    imtot=np.zeros([lk*n_ims,lk*n_ims,datashape[-1]])
+    imtot=np.zeros([lk*n_ims,lk*n_ims)
     n=0
     m=0
 
