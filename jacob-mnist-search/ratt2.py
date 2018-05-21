@@ -143,7 +143,7 @@ def train():
             print("Epoch: ",i," G Loss: ", lg)
             if (j%500==0):
                 k=k+1
-                showim(g,k,np.eye(25,11),[i1,i2,i3,i4])
+                showim(g,k,np.eye(25,10),[i1,i2,i3,i4])
 
 
 train()
