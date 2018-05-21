@@ -38,8 +38,6 @@ def getnoise(size):
 
 def getfakelabels(size):
     fakelabels = np.eye(10,10)[np.random.choice(10, size)]
-    a,b=fakelabels.shape
-    fakelabels=np.hstack((fakelabels,np.zeros([a,1])))
     return fakelabels
 
 
@@ -103,8 +101,6 @@ def train():
     dataset="mnist"
     images=loaddata(dataset)
     labels=loadlables(dataset)
-    a,b=labels.shape
-    labels=np.hstack((labels,np.zeros([a,1])))
     g,d=loadmodel(dataset)
     LR = 0.0002  # initial learning rate
     B1 = 0.5 # momentum term
@@ -132,11 +128,11 @@ def train():
         g.save(filename)
         for j in range(i1//batch_size):
             noise=getfakelabels(batch_size*2)
-            noise2 = noise + np.random.uniform(0, 0.1, size=(batch_size*2, 11))
+            noise2 = noise + np.random.uniform(0, 0.1, size=(batch_size*2, 10))
             noise_images=g.predict(noise2)
 
             ldr=d.train_on_batch(images[j*batch_size:(j+1)*batch_size],labels[j*batch_size:(j+1)*batch_size])
-            ld=d.train_on_batch(noise_images[0:batch_size],  np.hstack((np.zeros([batch_size,10]),np.ones([batch_size,1]))) )
+            ld=d.train_on_batch(noise_images[0:batch_size], np.zeros([batch_size,10]))
             #ld = 1;
             print("Epoch: ",i," D Loss: ",ld, ldr)
             #d.trainable=False

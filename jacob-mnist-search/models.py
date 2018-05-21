@@ -33,7 +33,7 @@ def loadmodel(dataset):
 
 def mnistmodel():
     g = Sequential()
-    g.add(Dense(128*8*8,input_shape=[11],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
+    g.add(Dense(128*8*8,input_shape=[10],kernel_initializer=initializers.RandomNormal(stddev=0.02)))
     g.add(LeakyReLU(0.2))
     g.add(Dropout(0.3))
     g.add(Dense(128*8*8))
@@ -60,7 +60,7 @@ def mnistmodel():
     d.add(Dense(64))
     d.add(Dropout(0.3))
     g.add(LeakyReLU(0.2))
-    d.add(Dense(11, activation='softmax'))
+    d.add(Dense(10, activation='softmax'))
     d.summary()
     return g,d
 
