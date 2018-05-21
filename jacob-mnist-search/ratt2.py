@@ -90,7 +90,7 @@ def showim(genmodel,index,noise,datashape):
     imtot=(imtot+1)/2
     print('Printing to: '+filename)
     plt.axis('off')
-    plt.imshow(imtot)
+    plt.imshow(imtot, cmap='gray')
     #plt.show()
     plt.savefig("imscats/"+filename)
 
@@ -128,7 +128,7 @@ def train():
         g.save(filename)
         for j in range(i1//batch_size):
             noise=getfakelabels(batch_size*2)
-            noise2 = noise + np.random.uniform(0, 0.1, size=(batch_size*2, 10))
+            noise2 = noise# + np.random.uniform(0, 0.1, size=(batch_size*2, 10))
             noise_images=g.predict(noise2)
 
             ldr=d.train_on_batch(images[j*batch_size:(j+1)*batch_size],labels[j*batch_size:(j+1)*batch_size])
